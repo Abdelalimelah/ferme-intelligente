@@ -6,7 +6,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Badge from '../../components/ui/Badge';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import { Plus, Pencil, Trash2, KeyRound, Copy, Check } from 'lucide-react';
+import { Plus, Pencil, Trash2, Mail } from 'lucide-react';
 
 const emptyForm = { nom: '', prenom: '', email: '', telephone: '' };
 
@@ -17,8 +17,7 @@ export default function ManageManagers() {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState('');
-  const [tempPassword, setTempPassword] = useState(null);
-  const [copied, setCopied] = useState(false);
+  const [successEmail, setSuccessEmail] = useState(null);
 
   const load = () => {
     setLoading(true);
@@ -38,9 +37,9 @@ export default function ManageManagers() {
         await updateUtilisateur(editId, { ...form, role: 'GESTIONNAIRE' });
         setModalOpen(false);
       } else {
-        const res = await createUtilisateur({ ...form, role: 'GESTIONNAIRE' });
+        await createUtilisateur({ ...form, role: 'GESTIONNAIRE' });
         setModalOpen(false);
-        setTempPassword({ password: res.data.temporaryPassword, name: `${form.prenom} ${form.nom}` });
+        setSuccessEmail(form.email);
       }
       load();
     } catch (err) {
@@ -51,12 +50,6 @@ export default function ManageManagers() {
   const handleDelete = async (id) => {
     if (!window.confirm('Supprimer ce gestionnaire ?')) return;
     try { await deleteUtilisateur(id); load(); } catch {}
-  };
-
-  const copyPassword = () => {
-    navigator.clipboard?.writeText(tempPassword.password);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   const columns = [
@@ -107,30 +100,20 @@ export default function ManageManagers() {
         </form>
       </Modal>
 
-      {/* Temp password success modal */}
-      <Modal isOpen={!!tempPassword} onClose={() => setTempPassword(null)} title="Utilisateur créé">
-        {tempPassword && (
+      {/* Email sent confirmation */}
+      <Modal isOpen={!!successEmail} onClose={() => setSuccessEmail(null)} title="Compte créé">
+        {successEmail && (
           <div className="space-y-4">
-            <div className="flex items-center gap-3 p-3 bg-sage-mist/40 rounded-xl">
-              <KeyRound className="w-5 h-5 text-sage-dark shrink-0" />
+            <div className="flex items-center gap-3 p-4 bg-sage-mist/40 rounded-xl">
+              <Mail className="w-5 h-5 text-sage-dark shrink-0" />
               <p className="text-sm text-charcoal">
-                Compte créé pour <span className="font-semibold text-bark">{tempPassword.name}</span>.
-                Communiquez ce mot de passe temporaire — il devra le changer à la première connexion.
+                Un email contenant le mot de passe temporaire a été envoyé à{' '}
+                <span className="font-semibold text-bark">{successEmail}</span>.
+                Le gestionnaire devra changer son mot de passe à la première connexion.
               </p>
             </div>
-            <div>
-              <label className="block text-xs text-stone mb-1.5">Mot de passe temporaire</label>
-              <div className="flex items-center gap-2">
-                <code className="flex-1 font-mono text-base bg-cream border border-parchment rounded-xl px-4 py-3 text-bark tracking-wider">
-                  {tempPassword.password}
-                </code>
-                <button onClick={copyPassword} className="p-3 rounded-xl bg-sage-mist hover:bg-sage-mist/70 text-sage-dark cursor-pointer transition-colors" title="Copier">
-                  {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
             <div className="flex justify-end pt-2">
-              <Button onClick={() => setTempPassword(null)}>J'ai noté le mot de passe</Button>
+              <Button onClick={() => setSuccessEmail(null)}>OK</Button>
             </div>
           </div>
         )}

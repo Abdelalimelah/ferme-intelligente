@@ -23,6 +23,11 @@ public class DonneeCapteur {
     @Column(name = "date_releve", nullable = false)
     private LocalDateTime dateReleve;
 
+    @PrePersist
+    public void prePersist() {
+        this.dateReleve = LocalDateTime.now();
+    }
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "capteur_id", nullable = false)
     private Capteur capteur;

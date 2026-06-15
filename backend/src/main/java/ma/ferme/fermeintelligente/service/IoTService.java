@@ -8,7 +8,6 @@ import ma.ferme.fermeintelligente.entity.*;
 import ma.ferme.fermeintelligente.enums.NiveauAlerte;
 import ma.ferme.fermeintelligente.exception.ResourceNotFoundException;
 import ma.ferme.fermeintelligente.repository.*;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +28,6 @@ public class IoTService {
     private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
-    @CacheEvict(value = {"capteurs", "capteurs_parcelle"}, allEntries = true)
     public IoTDataResponse ingestData(IoTDataRequest request) {
         // Resolve capteur
         Capteur capteur = resolveCapteur(request);
