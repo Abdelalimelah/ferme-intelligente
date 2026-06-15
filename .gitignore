@@ -1,0 +1,43 @@
+# ── Environment ──────────────────────────────
+.env
+.env.local
+.env.production
+
+# ── Java / Maven ─────────────────────────────
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+!**/test/**/*.jar
+
+# ── Node / Frontend ───────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+*.log
+
+# ── Python ───────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+ai-service/__pycache__/
+ai-service/.venv/
+ai-service/venv/
+arduino-simulator/__pycache__/
+
+# ── AI Model weights (large files — use Git LFS) ──
+ai-service/model/weights/*.h5
+ai-service/model/weights/*.pb
+ai-service/model/weights/*.tflite
+
+# ── Uploads ──────────────────────────────────
+uploads/
+backend/uploads/
+ai-service/uploads/
+
+# ── IDE ──────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+.DS_Store
+.env
