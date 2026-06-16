@@ -196,3 +196,64 @@ jobs:
           scan-ref: '.'
           severity: 'CRITICAL,HIGH'
           exit-code: '1'
+
+  # ── 8. SonarQube static analysis ──────────────────────────────
+  # Self-hosted SonarQube runs locally via `docker compose --profile sonar up`.
+  # This job only runs once SONAR_HOST_URL/SONAR_TOKEN repo secrets point it
+  # at a server reachable from GitHub-hosted runners (public host, or
+  # SonarCloud later) — it's a no-op until those secrets are set.
+  sonar:
+    name: SonarQube scan
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: ferme_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Sonar config
+        id: check
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: echo "configured=${{ env.SONAR_HOST_URL != '' }}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@v4
+        if: steps.check.outputs.configured == 'true'
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Backend analysis (Java)
+        if: steps.check.outputs.configured == 'true'
+        working-directory: backend
+        run: mvn -B verify sonar:sonar -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/ferme_test
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: postgres
+
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.configured == 'true'
+        with:
+          node-version: '20'
+
+      - name: Frontend + AI service analysis (JS/Python)
+        if: steps.check.outputs.configured == 'true'
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

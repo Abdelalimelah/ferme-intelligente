@@ -19,8 +19,10 @@ export const options = {
   },
 };
 
-export default function () {
-  // Real auth flow: login with a seeded demo account
+// Logs in once per test run, not per request — /api/auth/login is
+// rate-limited to 5 attempts/minute/IP (RateLimitFilter), so hammering it
+// from every VU/iteration would just trip that limiter, not test anything.
+export function setup() {
   const loginRes = http.post(
     `${BASE_URL}/api/auth/login`,
     JSON.stringify({ email: 'karim@ferme.ma', motDePasse: 'password123' }),
@@ -30,6 +32,19 @@ export default function () {
   check(loginRes, {
     'login status is 200': (r) => r.status === 200,
     'login returns a token': (r) => !!r.json('token'),
+  });
+
+  return { token: loginRes.json('token') };
+}
+
+export default function (data) {
+  // Real authenticated read, representative of normal traffic
+  const res = http.get(`${BASE_URL}/api/parcelles`, {
+    headers: { Authorization: `Bearer ${data.token}` },
+  });
+
+  check(res, {
+    'parcelles status is 200': (r) => r.status === 200,
   });
 
   sleep(1);

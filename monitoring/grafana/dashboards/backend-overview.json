@@ -3,12 +3,13 @@
   "uid": "ferme-backend-overview",
   "timezone": "browser",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 2,
+  "refresh": "10s",
   "panels": [
     {
-      "title": "HTTP Request Rate",
+      "title": "HTTP Request Rate (backend)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
       "targets": [
         {
           "expr": "sum(rate(http_server_requests_seconds_count{application=\"ferme-backend\"}[1m])) by (uri, status)",
@@ -17,36 +18,114 @@
       ]
     },
     {
-      "title": "HTTP p95 Latency",
+      "title": "HTTP p95 / p99 Latency (backend)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
       "targets": [
         {
           "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{application=\"ferme-backend\"}[5m])) by (le, uri))",
-          "legendFormat": "{{uri}}"
+          "legendFormat": "p95 {{uri}}"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{application=\"ferme-backend\"}[5m])) by (le))",
+          "legendFormat": "p99 (overall)"
+        }
+      ]
+    },
+    {
+      "title": "Error Rate (5xx / 4xx, backend)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 },
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"ferme-backend\", status=~\"5..\"}[1m])) / sum(rate(http_server_requests_seconds_count{application=\"ferme-backend\"}[1m]))",
+          "legendFormat": "5xx rate"
+        },
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"ferme-backend\", status=~\"4..\"}[1m])) / sum(rate(http_server_requests_seconds_count{application=\"ferme-backend\"}[1m]))",
+          "legendFormat": "4xx rate"
         }
       ]
     },
     {
       "title": "JVM Heap Used",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
       "targets": [
-        {
-          "expr": "jvm_memory_used_bytes{application=\"ferme-backend\", area=\"heap\"}",
-          "legendFormat": "{{id}}"
-        }
+        { "expr": "jvm_memory_used_bytes{application=\"ferme-backend\", area=\"heap\"}", "legendFormat": "{{id}}" }
+      ]
+    },
+    {
+      "title": "JVM Threads & GC pauses",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+      "targets": [
+        { "expr": "jvm_threads_live_threads{application=\"ferme-backend\"}", "legendFormat": "live threads" },
+        { "expr": "rate(jvm_gc_pause_seconds_sum{application=\"ferme-backend\"}[1m])", "legendFormat": "GC pause time/s" }
+      ]
+    },
+    {
+      "title": "Process CPU Usage (backend)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "targets": [
+        { "expr": "process_cpu_usage{application=\"ferme-backend\"}", "legendFormat": "process CPU" },
+        { "expr": "system_cpu_usage{application=\"ferme-backend\"}", "legendFormat": "system CPU" }
       ]
     },
     {
       "title": "AI Service Request Rate",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 16 },
       "targets": [
-        {
-          "expr": "sum(rate(http_requests_total[1m])) by (handler, status)",
-          "legendFormat": "{{handler}} [{{status}}]"
-        }
+        { "expr": "sum(rate(http_requests_total[1m])) by (handler, status)", "legendFormat": "{{handler}} [{{status}}]" }
+      ]
+    },
+    {
+      "title": "AI Service p95 Latency",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 16 },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_highr_seconds_bucket[5m])) by (le))", "legendFormat": "p95" }
+      ]
+    },
+    {
+      "title": "Service Uptime",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 16 },
+      "targets": [
+        { "expr": "up{job=~\"backend|ai-service|postgres|redis\"}", "legendFormat": "{{job}}" }
+      ]
+    },
+    {
+      "title": "Postgres Connections",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 24 },
+      "targets": [
+        { "expr": "pg_stat_database_numbackends", "legendFormat": "{{datname}}" }
+      ]
+    },
+    {
+      "title": "Postgres Database Size",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 24 },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "targets": [
+        { "expr": "pg_database_size_bytes{datname=\"ferme_intelligente\"}", "legendFormat": "ferme_intelligente" }
+      ]
+    },
+    {
+      "title": "Redis Memory & Clients",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 24 },
+      "targets": [
+        { "expr": "redis_memory_used_bytes", "legendFormat": "memory used (bytes)" },
+        { "expr": "redis_connected_clients", "legendFormat": "connected clients" }
       ]
     }
   ]

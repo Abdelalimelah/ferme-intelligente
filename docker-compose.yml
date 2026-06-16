@@ -204,6 +204,43 @@ services:
     ports:
       - "3001:3000"
 
+  # ── 10. SonarQube DB (dedicated Postgres, required by SonarQube) ─
+  sonarqube-db:
+    image: postgres:16-alpine
+    container_name: ferme-sonarqube-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sonar
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: ${SONAR_DB_PASSWORD:-sonar}
+    volumes:
+      - sonarqube_db_data:/var/lib/postgresql/data
+    profiles:
+      - sonar
+
+  # ── 11. SonarQube (static analysis + code quality) ───────────
+  sonarqube:
+    image: sonarqube:26.6.0.123539-community
+    container_name: ferme-sonarqube
+    restart: unless-stopped
+    depends_on:
+      - sonarqube-db
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonarqube-db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: ${SONAR_DB_PASSWORD:-sonar}
+      # Disables the Elasticsearch bootstrap checks (vm.max_map_count, ulimits)
+      # so it runs out of the box on local Docker Desktop. Remove for production.
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    ports:
+      - "9000:9000"
+    profiles:
+      - sonar
+
   # ── 5. IoT Simulator (optional — start with --profile simulator) ─
   arduino-simulator:
     build:
@@ -227,3 +264,7 @@ volumes:
   redis_data:
   prometheus_data:
   grafana_data:
+  sonarqube_db_data:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
