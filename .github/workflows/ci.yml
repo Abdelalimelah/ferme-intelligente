@@ -117,9 +117,12 @@ jobs:
 
       - name: Wait for the app to be healthy
         run: |
+          # Poll the backend's actuator health directly (port 8080 is published
+          # for IoT devices) rather than /api/auth/login through nginx - that
+          # endpoint is rate-limited to 5/min and polling it here would burn
+          # the budget before the actual test even runs.
           for i in $(seq 1 60); do
-            if curl -fs http://localhost/api/auth/login -X POST \
-              -H "Content-Type: application/json" -d '{}' >/dev/null 2>&1; then
+            if curl -fs http://localhost:8080/actuator/health >/dev/null 2>&1; then
               echo "App is up after $((i * 3))s"
               exit 0
             fi
@@ -167,9 +170,12 @@ jobs:
 
       - name: Wait for the app to be healthy
         run: |
+          # Poll the backend's actuator health directly (port 8080 is published
+          # for IoT devices) rather than /api/auth/login through nginx - that
+          # endpoint is rate-limited to 5/min and polling it here would burn
+          # the budget before the actual test even runs.
           for i in $(seq 1 60); do
-            if curl -fs http://localhost/api/auth/login -X POST \
-              -H "Content-Type: application/json" -d '{}' >/dev/null 2>&1; then
+            if curl -fs http://localhost:8080/actuator/health >/dev/null 2>&1; then
               echo "App is up after $((i * 3))s"
               exit 0
             fi
