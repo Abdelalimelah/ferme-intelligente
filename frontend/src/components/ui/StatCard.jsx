@@ -11,6 +11,9 @@ export default function StatCard({ icon, label, value, subtitle, color = 'sage',
   return (
     <div
       onClick={onClick}
+      role={clickable ? 'button' : undefined}
+      tabIndex={clickable ? 0 : undefined}
+      onKeyDown={clickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(e); } } : undefined}
       className={`bg-warm-white border border-parchment rounded-2xl p-5 flex items-start gap-4 transition-all ${
         clickable ? 'cursor-pointer hover:shadow-md hover:border-sage-light hover:-translate-y-0.5' : ''
       }`}

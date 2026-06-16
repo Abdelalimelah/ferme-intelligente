@@ -69,7 +69,7 @@ export default function ManageParcels() {
         searchPlaceholder="Rechercher une parcelle..."
         onRowClick={row => navigate(`/manager/parcelle/${row.id}`)}
         actions={row => (
-          <div className="flex gap-1.5 justify-end" onClick={e => e.stopPropagation()}>
+          <div className="flex gap-1.5 justify-end" role="presentation" onClick={e => e.stopPropagation()}>
             <button onClick={() => navigate(`/manager/parcelle/${row.id}`)} className="p-1.5 rounded-lg hover:bg-sage-mist text-stone hover:text-sage-dark cursor-pointer" title="Détail"><Eye className="w-4 h-4" /></button>
             <button onClick={() => openEdit(row)} className="p-1.5 rounded-lg hover:bg-sage-mist text-stone hover:text-sage-dark cursor-pointer" title="Modifier"><Pencil className="w-4 h-4" /></button>
             <button onClick={() => handleDelete(row.id)} className="p-1.5 rounded-lg hover:bg-terracotta-lt text-stone hover:text-terracotta cursor-pointer" title="Supprimer"><Trash2 className="w-4 h-4" /></button>

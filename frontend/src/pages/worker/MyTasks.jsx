@@ -64,6 +64,9 @@ export default function MyTasks() {
             <div
               key={t.id}
               onClick={() => setDetail(t)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDetail(t); } }}
               className="bg-warm-white border border-parchment rounded-2xl p-4 cursor-pointer transition-all hover:shadow-md hover:border-sage-light hover:-translate-y-0.5"
             >
               <div className="flex items-start justify-between">

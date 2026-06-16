@@ -66,6 +66,9 @@ export default function ManagerDashboard() {
               <div
                 key={a.id}
                 onClick={() => navigate('/manager/alerts')}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/manager/alerts'); } }}
                 className="flex items-center justify-between p-3 bg-cream rounded-xl cursor-pointer transition-all hover:shadow-sm hover:bg-cream/70"
               >
                 <div>

@@ -28,6 +28,8 @@ public class UtilisateurService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
+    private static final SecureRandom TEMP_PASSWORD_RANDOM = new SecureRandom();
+
     public List<UtilisateurDTO> findAll() {
         return utilisateurRepository.findAll().stream().map(this::toDTO).toList();
     }
@@ -66,10 +68,9 @@ public class UtilisateurService {
 
     private String generateTempPassword() {
         final String chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
-        SecureRandom random = new SecureRandom();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 10; i++) {
-            sb.append(chars.charAt(random.nextInt(chars.length())));
+            sb.append(chars.charAt(TEMP_PASSWORD_RANDOM.nextInt(chars.length())));
         }
         return sb.toString();
     }

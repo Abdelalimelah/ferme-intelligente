@@ -65,7 +65,7 @@ export default function ReportsView() {
         data={filtered}
         searchPlaceholder="Rechercher un rapport..."
         actions={row => (
-          <div className="flex items-center gap-2 justify-end" onClick={e => e.stopPropagation()}>
+          <div className="flex items-center gap-2 justify-end" role="presentation" onClick={e => e.stopPropagation()}>
             <button onClick={() => openRapport(row)} className="p-1.5 rounded-lg hover:bg-sage-mist text-stone hover:text-sage-dark cursor-pointer" title="Détail"><Eye className="w-4 h-4" /></button>
             <select
               value={row.statut}

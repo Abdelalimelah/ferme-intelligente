@@ -164,7 +164,14 @@ function SensorsTab({ detail, selectedCapteur, setSelectedCapteur, sensorHistory
       {/* Live gauges */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {detail.capteurs?.map(c => (
-          <div key={c.id} onClick={() => setSelectedCapteur(c)} className="cursor-pointer">
+          <div
+            key={c.id}
+            onClick={() => setSelectedCapteur(c)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedCapteur(c); } }}
+            className="cursor-pointer"
+          >
             <SensorGauge capteur={c} />
           </div>
         ))}

@@ -38,6 +38,9 @@ export default function AlertsPage() {
         <div
           key={a.id}
           onClick={() => setDetail(a)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDetail(a); } }}
           className={`flex items-start gap-4 p-4 rounded-2xl border transition-all cursor-pointer hover:shadow-md hover:-translate-y-0.5 ${a.estLue ? 'bg-warm-white border-parchment' : 'bg-cream border-sage-light'}`}
         >
           <div className={`p-2 rounded-xl mt-0.5 ${a.niveau === 'CRITIQUE' ? 'bg-terracotta-lt' : a.niveau === 'WARNING' ? 'bg-wheat-light' : 'bg-sage-mist'}`}>

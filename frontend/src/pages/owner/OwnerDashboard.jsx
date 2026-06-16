@@ -61,6 +61,9 @@ export default function OwnerDashboard() {
               <div
                 key={r.id}
                 onClick={() => openRapport(r)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRapport(r); } }}
                 className="flex items-center justify-between p-3 bg-cream rounded-xl cursor-pointer transition-all hover:shadow-sm hover:bg-cream/70"
               >
                 <div className="flex-1">
