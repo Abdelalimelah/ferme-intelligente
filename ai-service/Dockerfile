@@ -9,7 +9,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN mkdir -p /app/uploads/analyses /app/model/weights
+RUN groupadd -r ferme && useradd -r -g ferme ferme \
+    && mkdir -p /app/uploads/analyses /app/model/weights \
+    && chown -R ferme:ferme /app
+
+USER ferme
 
 EXPOSE 8001
 

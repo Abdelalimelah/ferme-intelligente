@@ -3,11 +3,11 @@ Ferme Intelligente - AI Disease Classification Microservice
 FastAPI application that classifies plant diseases from images.
 """
 import os
-import shutil
 import uuid
 from datetime import datetime
 from typing import Optional
 
+import aiofiles
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -174,8 +174,8 @@ async def analyze_uploaded_image(
     filename = f"{uuid.uuid4()}.{ext}"
     filepath = os.path.join(UPLOAD_DIR, filename)
 
-    with open(filepath, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+    async with aiofiles.open(filepath, "wb") as f:
+        await f.write(await file.read())
 
     try:
         result = classifier.predict(filepath)
