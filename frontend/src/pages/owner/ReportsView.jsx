@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getRapports, getRapportById, updateRapportStatut } from '../../api/rapportApi';
+import { useAsyncData } from '../../hooks/useAsyncData';
 import DataTable from '../../components/ui/DataTable';
 import Badge from '../../components/ui/Badge';
 import Select from '../../components/ui/Select';
@@ -8,23 +9,19 @@ import RapportDetailModal from '../../components/RapportDetailModal';
 import { Eye } from 'lucide-react';
 
 export default function ReportsView() {
-  const [rapports, setRapports] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: rapports, loading, reload } = useAsyncData(
+    () => getRapports().then(res => res.data),
+    [],
+    { initialData: [] },
+  );
   const [filter, setFilter] = useState('ALL');
   const [selectedRapport, setSelectedRapport] = useState(null);
-
-  const load = () => {
-    setLoading(true);
-    getRapports().then(res => setRapports(res.data)).catch(() => {}).finally(() => setLoading(false));
-  };
-
-  useEffect(load, []);
 
   const filtered = filter === 'ALL' ? rapports : rapports.filter(r => r.type === filter || r.statut === filter);
 
   const handleStatut = async (id, statut) => {
     await updateRapportStatut(id, statut);
-    load();
+    reload();
   };
 
   const openRapport = async (r) => {
@@ -85,6 +82,7 @@ export default function ReportsView() {
       />
 
       <RapportDetailModal
+        key={selectedRapport?.id}
         rapport={selectedRapport}
         isOpen={!!selectedRapport}
         onClose={() => setSelectedRapport(null)}

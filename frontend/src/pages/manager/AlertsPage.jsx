@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getAlertes, markAlerteAsRead } from '../../api/alerteApi';
+import { useAsyncData } from '../../hooks/useAsyncData';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
@@ -8,20 +9,12 @@ import EmptyState from '../../components/ui/EmptyState';
 import { AlertTriangle, CheckCircle, Bell, MapPin, Tag, Clock } from 'lucide-react';
 
 export default function AlertsPage() {
-  const [alertes, setAlertes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { data: alertes, setData: setAlertes, loading, error, setError } = useAsyncData(
+    () => getAlertes().then(res => res.data),
+    [],
+    { initialData: [], errorMessage: 'Erreur lors du chargement des alertes' },
+  );
   const [detail, setDetail] = useState(null);
-
-  const load = () => {
-    setLoading(true);
-    getAlertes()
-      .then(res => { setAlertes(res.data); setError(''); })
-      .catch(() => setError('Erreur lors du chargement des alertes'))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(load, []);
 
   const handleMarkRead = async (id, e) => {
     e?.stopPropagation();

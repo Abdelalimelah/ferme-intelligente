@@ -40,20 +40,29 @@ public class ParcelleDetailDTO {
     public static class DiseaseResultDTO {
         private Long id;
         private String maladieDetectee;
+        private String maladieFr;
+        private String className;
         private Double niveauConfiance;
         private LocalDateTime dateAnalyse;
         private String recommandation;
         private String imagePath;
+        private String imageUrl;
+        private boolean sain;
+        private String parcelleNom;
+        private String typeCulture;
     }
 
     @Data @NoArgsConstructor @AllArgsConstructor @Builder
     public static class ImageDTO {
         private Long id;
         private String cheminFichier;
+        private String imageUrl;
         private LocalDateTime dateCapture;
         private String resolution;
         private boolean analysee;
         private String maladieDetectee;
+        private String maladieFr;
+        private Double niveauConfiance;
     }
 
     @Data @NoArgsConstructor @AllArgsConstructor @Builder

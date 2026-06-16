@@ -51,21 +51,36 @@ export default function ManageSensors() {
   // Delete confirmation state
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const load = useCallback((retry = true) => {
-    setLoading(true);
-    Promise.all([getCapteurs(), getParcelles()])
-      .then(([c, p]) => { setCapteurs(c.data); setParcelles(p.data); setError(''); })
-      .catch(() => {
+  const cancelledRef = useRef(false);
+
+  const load = useCallback(() => {
+    async function attempt(retry) {
+      setLoading(true);
+      try {
+        const [c, p] = await Promise.all([getCapteurs(), getParcelles()]);
+        if (cancelledRef.current) return;
+        setCapteurs(c.data);
+        setParcelles(p.data);
+        setError('');
+      } catch {
+        if (cancelledRef.current) return;
         if (retry) {
-          setTimeout(() => load(false), 1500);
-        } else {
-          setError('Erreur lors du chargement des capteurs');
+          setTimeout(() => { if (!cancelledRef.current) attempt(false); }, 1500);
+          return;
         }
-      })
-      .finally(() => setLoading(false));
+        setError('Erreur lors du chargement des capteurs');
+      } finally {
+        if (!cancelledRef.current) setLoading(false);
+      }
+    }
+    attempt(true);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    cancelledRef.current = false;
+    load();
+    return () => { cancelledRef.current = true; };
+  }, [load]);
 
   // WebSocket: merge live readings into sensor list
   const handleLiveReading = useCallback((reading) => {

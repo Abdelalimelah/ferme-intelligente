@@ -121,7 +121,7 @@ services:
     expose:
       - "80"                # internal only
 
-  # ── 4. AI Microservice (FastAPI + TensorFlow) ────────────────
+  # ── 4. AI Microservice (FastAPI + PyTorch ResNet9) ───────────
   ai-service:
     build:
       context: ./ai-service
@@ -129,16 +129,19 @@ services:
     container_name: ferme-ai
     restart: unless-stopped
     expose:
-      - "8001"              # internal only — accessed via Nginx /ai/ or backend direct
+      - "8001"
     volumes:
       - ai_uploads:/app/uploads
-      - ai_models:/app/model/weights
+      - type: bind
+        source: /Users/abdelalime/Downloads/DataSet/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/valid
+        target: /dataset
+        read_only: true
     environment:
-      MODEL_PATH: /app/model/weights/plant_disease_model.h5
+      DATASET_PATH: /dataset
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       interval: 15s
-      timeout: 5s
+      timeout: 10s
       retries: 5
 
   # ── 5. IoT Simulator (optional — start with --profile simulator) ─

@@ -78,7 +78,7 @@ export function useSensorSocket(onReading, parcelleId = null) {
         client.activate();
         clientRef.current = client;
 
-      } catch (e) {
+      } catch {
         // @stomp/stompjs not yet installed — silently fall back to polling
         if (active) setError('WebSocket non disponible');
       }

@@ -80,6 +80,7 @@ export default function OwnerDashboard() {
       </Card>
 
       <RapportDetailModal
+        key={selectedRapport?.id}
         rapport={selectedRapport}
         isOpen={!!selectedRapport}
         onClose={() => setSelectedRapport(null)}

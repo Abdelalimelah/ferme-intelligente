@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { getTachesByAgriculteur, markTacheTerminee, markTacheDemarree } from '../../api/tacheApi';
+import { useAsyncData } from '../../hooks/useAsyncData';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
@@ -10,27 +11,19 @@ import { CheckCircle, Play, ListTodo, MapPin, Calendar, User } from 'lucide-reac
 
 export default function MyTasks() {
   const { user } = useAuth();
-  const [taches, setTaches] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { data: taches, loading, error, setError, reload } = useAsyncData(
+    () => getTachesByAgriculteur(user.id).then(res => res.data),
+    [user.id],
+    { initialData: [], errorMessage: 'Erreur lors du chargement des tâches' },
+  );
   const [filter, setFilter] = useState('ALL');
   const [busyId, setBusyId] = useState(null);
   const [detail, setDetail] = useState(null);
 
-  const load = () => {
-    setLoading(true);
-    getTachesByAgriculteur(user.id)
-      .then(res => { setTaches(res.data); setError(''); })
-      .catch(() => setError('Erreur lors du chargement des tâches'))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(load, [user.id]);
-
   const handleStart = async (id, e) => {
     e?.stopPropagation();
     setBusyId(id);
-    try { await markTacheDemarree(id); load(); }
+    try { await markTacheDemarree(id); reload(); }
     catch { setError('Erreur lors du démarrage de la tâche'); }
     finally { setBusyId(null); }
   };
@@ -38,7 +31,7 @@ export default function MyTasks() {
   const handleFinish = async (id, e) => {
     e?.stopPropagation();
     setBusyId(id);
-    try { await markTacheTerminee(id); load(); }
+    try { await markTacheTerminee(id); reload(); }
     catch { setError('Erreur lors de la clôture de la tâche'); }
     finally { setBusyId(null); }
   };

@@ -5,7 +5,7 @@ import StatCard from '../../components/ui/StatCard';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import { ClipboardList, Clock, CheckCircle2, ListTodo } from 'lucide-react';
+import { ClipboardList, Clock, CheckCircle2 } from 'lucide-react';
 
 export default function WorkerDashboard() {
   const { user } = useAuth();

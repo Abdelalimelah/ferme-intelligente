@@ -8,14 +8,23 @@ export default defineConfig([
   globalIgnores(['dist']),
   {
     files: ['**/*.{js,jsx}'],
+    ignores: ['vite.config.js', 'eslint.config.js'],
     extends: [
       js.configs.recommended,
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
     ],
     languageOptions: {
-      globals: globals.browser,
+      globals: { ...globals.browser, ...globals.vitest },
       parserOptions: { ecmaFeatures: { jsx: true } },
+    },
+  },
+  {
+    // Config files run under Node, not the browser
+    files: ['vite.config.js', 'eslint.config.js'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      globals: globals.node,
     },
   },
 ])

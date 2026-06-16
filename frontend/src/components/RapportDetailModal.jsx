@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Modal from './ui/Modal';
 import Badge from './ui/Badge';
 import Button from './ui/Button';
@@ -7,11 +7,11 @@ import { FileText, User, Calendar } from 'lucide-react';
 const STATUSES = ['NON_TRAITE', 'EN_COURS', 'TRAITE'];
 const statusLabels = { NON_TRAITE: 'Non traité', EN_COURS: 'En cours', TRAITE: 'Traité' };
 
+// Rendered with `key={rapport.id}` by the parent so a new `rapport` remounts
+// this component instead of needing an effect to resync `statut`.
 export default function RapportDetailModal({ rapport, isOpen, onClose, onChangeStatut }) {
   const [statut, setStatut] = useState(rapport?.statut);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => { setStatut(rapport?.statut); }, [rapport]);
 
   if (!rapport) return null;
 

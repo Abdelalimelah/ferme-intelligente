@@ -68,7 +68,7 @@ public class ParcelleDetailService {
 
         // Build disease results
         List<ParcelleDetailDTO.DiseaseResultDTO> diseaseDTOs = resultats.stream()
-                .filter(r -> r.getMaladieDetectee() != null && !r.getMaladieDetectee().equals("Healthy"))
+                .filter(r -> r.getMaladieDetectee() != null && !r.getMaladieDetectee().equalsIgnoreCase("healthy"))
                 .limit(10)
                 .map(r -> ParcelleDetailDTO.DiseaseResultDTO.builder()
                         .id(r.getId())
@@ -83,14 +83,17 @@ public class ParcelleDetailService {
         // Build image DTOs
         List<ParcelleDetailDTO.ImageDTO> imageDTOs = images.stream().map(img -> {
             boolean analysee = img.getResultatAnalyse() != null;
-            String maladie = analysee ? img.getResultatAnalyse().getMaladieDetectee() : null;
+            ResultatAnalyse resultat = analysee ? img.getResultatAnalyse() : null;
             return ParcelleDetailDTO.ImageDTO.builder()
                     .id(img.getId())
                     .cheminFichier(img.getCheminFichier())
+                    .imageUrl(img.getImageUrl())
                     .dateCapture(img.getDateCapture())
                     .resolution(img.getResolution())
                     .analysee(analysee)
-                    .maladieDetectee(maladie)
+                    .maladieDetectee(resultat != null ? resultat.getMaladieDetectee() : null)
+                    .maladieFr(resultat != null ? resultat.getMaladieFr() : null)
+                    .niveauConfiance(resultat != null ? resultat.getNiveauConfiance() : null)
                     .build();
         }).toList();
 

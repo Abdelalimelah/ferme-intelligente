@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getParcelles, createParcelle, updateParcelle, deleteParcelle } from '../../api/parcelleApi';
 import { getFermes } from '../../api/fermeApi';
+import { useAsyncData } from '../../hooks/useAsyncData';
 import DataTable from '../../components/ui/DataTable';
 import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
@@ -11,25 +12,19 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2, Eye } from 'lucide-react';
 
 const emptyForm = { nom: '', surface: '', typeCulture: '', coordonneesGps: '', fermeId: '' };
+const emptyData = { parcelles: [], fermes: [] };
 
 export default function ManageParcels() {
   const navigate = useNavigate();
-  const [parcelles, setParcelles] = useState([]);
-  const [fermes, setFermes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: { parcelles, fermes }, loading, reload } = useAsyncData(
+    () => Promise.all([getParcelles(), getFermes()]).then(([p, f]) => ({ parcelles: p.data, fermes: f.data })),
+    [],
+    { initialData: emptyData },
+  );
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState('');
-
-  const load = () => {
-    setLoading(true);
-    Promise.all([getParcelles(), getFermes()])
-      .then(([p, f]) => { setParcelles(p.data); setFermes(f.data); })
-      .catch(() => {}).finally(() => setLoading(false));
-  };
-
-  useEffect(load, []);
 
   const openCreate = () => { setForm(emptyForm); setEditId(null); setError(''); setModalOpen(true); };
   const openEdit = (p) => { setForm({ nom: p.nom, surface: p.surface || '', typeCulture: p.typeCulture || '', coordonneesGps: p.coordonneesGps || '', fermeId: p.fermeId }); setEditId(p.id); setError(''); setModalOpen(true); };
@@ -42,7 +37,7 @@ export default function ManageParcels() {
       if (editId) await updateParcelle(editId, data);
       else await createParcelle(data);
       setModalOpen(false);
-      load();
+      reload();
     } catch (err) {
       setError(err.response?.data?.message || 'Erreur');
     }
@@ -50,7 +45,7 @@ export default function ManageParcels() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Supprimer cette parcelle ?')) return;
-    try { await deleteParcelle(id); load(); } catch {}
+    try { await deleteParcelle(id); reload(); } catch { /* best-effort */ }
   };
 
   const columns = [

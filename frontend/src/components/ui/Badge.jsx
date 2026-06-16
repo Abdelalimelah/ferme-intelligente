@@ -30,11 +30,28 @@ const labels = {
   AGRICULTEUR: 'Agriculteur',
 };
 
-export default function Badge({ value }) {
-  const color = badgeColors[value] || 'bg-warm-white text-stone';
+const colorClasses = {
+  red: 'bg-terracotta-lt text-terracotta',
+  green: 'bg-sage-mist text-sage-dark',
+  yellow: 'bg-wheat-light text-wheat',
+  blue: 'bg-sky-100 text-sky-700',
+  gray: 'bg-warm-white text-stone',
+};
+
+export default function Badge({ value, color, children }) {
+  if (color) {
+    const className = colorClasses[color] || colorClasses.gray;
+    return (
+      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${className}`}>
+        {children}
+      </span>
+    );
+  }
+
+  const className = badgeColors[value] || 'bg-warm-white text-stone';
   const label = labels[value] || value;
   return (
-    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${color}`}>
+    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${className}`}>
       {label}
     </span>
   );

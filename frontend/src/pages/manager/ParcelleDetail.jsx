@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getParcelleDetail, getSensorHistory } from '../../api/iotApi';
-import { getDiseasesByParcelle } from '../../api/aiApi';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
@@ -270,8 +269,12 @@ function ImagesTab({ images = [] }) {
         <div className="col-span-full text-center py-8 text-stone">Aucune image drone</div>
       ) : images.map(img => (
         <Card key={img.id}>
-          <div className="aspect-video bg-parchment rounded-lg flex items-center justify-center mb-3">
-            <ImageIcon className="w-8 h-8 text-stone" />
+          <div className="aspect-video bg-parchment rounded-lg flex items-center justify-center mb-3 overflow-hidden">
+            {img.imageUrl ? (
+              <img src={img.imageUrl} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <ImageIcon className="w-8 h-8 text-stone" />
+            )}
           </div>
           <div className="flex items-center justify-between">
             <div>
@@ -279,8 +282,9 @@ function ImagesTab({ images = [] }) {
               <p className="text-xs text-stone">{img.resolution}</p>
             </div>
             {img.analysee ? (
-              <Badge color={img.maladieDetectee === 'Healthy' ? 'green' : 'red'}>
-                {img.maladieDetectee || 'Analysée'}
+              <Badge color={img.maladieDetectee?.toLowerCase() === 'healthy' ? 'green' : 'red'}>
+                {img.maladieFr || img.maladieDetectee || 'Analysée'}
+                {img.niveauConfiance != null && ` · ${Math.round(img.niveauConfiance * 100)}%`}
               </Badge>
             ) : (
               <Badge color="gray">Non analysée</Badge>

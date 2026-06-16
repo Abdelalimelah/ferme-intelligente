@@ -1,22 +1,15 @@
-import { createContext, useState, useEffect } from 'react';
+import { useState } from 'react';
+import { AuthContext } from './AuthContext';
 import { logout as apiLogout } from '../api/authApi';
 
-export const AuthContext = createContext(null);
+function readStoredUser() {
+  const savedUser = localStorage.getItem('user');
+  return savedUser ? JSON.parse(savedUser) : null;
+}
 
 export function AuthProvider({ children }) {
-  const [user,  setUser]  = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const savedToken   = localStorage.getItem('token');
-    const savedUser    = localStorage.getItem('user');
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
-  }, []);
+  const [user,  setUser]  = useState(readStoredUser);
+  const [token, setToken] = useState(() => localStorage.getItem('token'));
 
   const loginUser = (tokenValue, refreshTokenValue, userData) => {
     localStorage.setItem('token',        tokenValue);
@@ -48,7 +41,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{
-      user, token, role, loading,
+      user, token, role, loading: false,
       loginUser, updateUser, logout,
       isAuthenticated: !!token,
     }}>

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getUtilisateursByRole, createUtilisateur, updateUtilisateur, deleteUtilisateur } from '../../api/utilisateurApi';
+import { useAsyncData } from '../../hooks/useAsyncData';
 import DataTable from '../../components/ui/DataTable';
 import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
@@ -11,20 +12,16 @@ import { Plus, Pencil, Trash2, Mail } from 'lucide-react';
 const emptyForm = { nom: '', prenom: '', email: '', telephone: '' };
 
 export default function ManageWorkers() {
-  const [workers, setWorkers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: workers, loading, reload } = useAsyncData(
+    () => getUtilisateursByRole('AGRICULTEUR').then(res => res.data),
+    [],
+    { initialData: [] },
+  );
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState('');
   const [successEmail, setSuccessEmail] = useState(null);
-
-  const load = () => {
-    setLoading(true);
-    getUtilisateursByRole('AGRICULTEUR').then(res => setWorkers(res.data)).catch(() => {}).finally(() => setLoading(false));
-  };
-
-  useEffect(load, []);
 
   const openCreate = () => { setForm(emptyForm); setEditId(null); setError(''); setModalOpen(true); };
   const openEdit = (w) => { setForm({ nom: w.nom, prenom: w.prenom, email: w.email, telephone: w.telephone || '' }); setEditId(w.id); setError(''); setModalOpen(true); };
@@ -41,7 +38,7 @@ export default function ManageWorkers() {
         setModalOpen(false);
         setSuccessEmail(form.email);
       }
-      load();
+      reload();
     } catch (err) {
       setError(err.response?.data?.message || 'Erreur');
     }
@@ -49,7 +46,7 @@ export default function ManageWorkers() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Supprimer cet agriculteur ?')) return;
-    try { await deleteUtilisateur(id); load(); } catch {}
+    try { await deleteUtilisateur(id); reload(); } catch { /* best-effort */ }
   };
 
   const columns = [

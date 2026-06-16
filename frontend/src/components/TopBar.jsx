@@ -34,7 +34,7 @@ export default function TopBar({ title }) {
   const alertsPath = alertsPathByRole[user?.role];
 
   const handleNotifClick = async (alerte) => {
-    try { await markAlerteAsRead(alerte.id); } catch {}
+    try { await markAlerteAsRead(alerte.id); } catch { /* best-effort, UI already optimistic */ }
     setAlertes(prev => prev.filter(a => a.id !== alerte.id));
     setNotifOpen(false);
     if (alertsPath) navigate(alertsPath);
@@ -42,7 +42,7 @@ export default function TopBar({ title }) {
 
   const handleMarkAll = async () => {
     const ids = alertes.map(a => a.id);
-    try { await Promise.all(ids.map(id => markAlerteAsRead(id))); } catch {}
+    try { await Promise.all(ids.map(id => markAlerteAsRead(id))); } catch { /* best-effort, UI already optimistic */ }
     setAlertes([]);
   };
 

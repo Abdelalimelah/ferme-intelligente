@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './context/AuthProvider';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './layouts/DashboardLayout';
 import LoginPage from './pages/LoginPage';
@@ -20,6 +20,7 @@ import SubmitReport from './pages/manager/SubmitReport';
 import HistoryPage from './pages/manager/HistoryPage';
 import ParcelleDetail from './pages/manager/ParcelleDetail';
 import DiseaseMap from './pages/manager/DiseaseMap';
+import AnalysePlante from './pages/manager/AnalysePlante';
 import WorkerDashboard from './pages/worker/WorkerDashboard';
 import MyTasks from './pages/worker/MyTasks';
 import MyParcel from './pages/worker/MyParcel';
@@ -49,6 +50,7 @@ function App() {
             <Route path="manager/history" element={<HistoryPage />} />
             <Route path="manager/parcelle/:id" element={<ParcelleDetail />} />
             <Route path="manager/disease-map" element={<DiseaseMap />} />
+            <Route path="manager/analyse" element={<AnalysePlante />} />
             <Route path="worker" element={<WorkerDashboard />} />
             <Route path="worker/tasks" element={<MyTasks />} />
             <Route path="worker/parcel" element={<MyParcel />} />

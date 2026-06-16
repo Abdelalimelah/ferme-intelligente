@@ -30,8 +30,11 @@ public class ImageParcelle {
     @JoinColumn(name = "parcelle_id", nullable = false)
     private Parcelle parcelle;
 
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "drone_id", nullable = false)
+    @JoinColumn(name = "drone_id")
     private Drone drone;
 
     @OneToOne(mappedBy = "image", cascade = CascadeType.ALL)

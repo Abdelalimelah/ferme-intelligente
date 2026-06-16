@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import {
   LayoutDashboard, Users, UserCheck, FileText, UserPlus, Link2,
   Map, ListTodo, Radio, AlertTriangle, FileUp, History,
-  CheckSquare, Sprout, User, LogOut, Bug
+  CheckSquare, Sprout, User, LogOut, Bug, Microscope
 } from 'lucide-react';
 
 const navConfig = {
@@ -21,6 +21,7 @@ const navConfig = {
     { to: '/manager/tasks', icon: ListTodo, label: 'Tâches' },
     { to: '/manager/sensors', icon: Radio, label: 'Capteurs' },
     { to: '/manager/disease-map', icon: Bug, label: 'Carte Maladies' },
+    { to: '/manager/analyse', icon: Microscope, label: 'Analyse IA' },
     { to: '/manager/alerts', icon: AlertTriangle, label: 'Alertes' },
     { to: '/manager/report', icon: FileUp, label: 'Soumettre Rapport' },
     { to: '/manager/history', icon: History, label: 'Historique' },
@@ -33,7 +34,7 @@ const navConfig = {
 };
 
 export default function Sidebar() {
-  const { user, role, logout } = useAuth();
+  const { role, logout } = useAuth();
   const items = navConfig[role] || [];
 
   return (

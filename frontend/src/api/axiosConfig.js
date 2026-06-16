@@ -24,13 +24,19 @@ const processQueue = (error, newToken = null) => {
   failedQueue = [];
 };
 
+// Public auth endpoints — a 401 here means "wrong credentials", not "your
+// session expired". Let the caller's own .catch() show that, don't redirect.
+const PUBLIC_AUTH_PATHS = ['/auth/login', '/auth/register', '/auth/refresh'];
+
 api.interceptors.response.use(
   response => response,
   async error => {
     const original = error.config;
+    const isPublicAuthRequest = PUBLIC_AUTH_PATHS.some(path => original?.url?.includes(path));
 
-    // Only attempt refresh for 401 errors that haven't already retried
-    if (error.response?.status === 401 && !original._retry) {
+    // Only attempt refresh for 401 errors that haven't already retried,
+    // and never for the public auth endpoints themselves.
+    if (error.response?.status === 401 && !original._retry && !isPublicAuthRequest) {
 
       // If already refreshing, queue this request until refresh completes
       if (isRefreshing) {

@@ -17,6 +17,12 @@ public class ResultatAnalyse {
     @Column(name = "maladie_detectee", length = 150)
     private String maladieDetectee;
 
+    @Column(name = "maladie_fr", length = 150)
+    private String maladieFr;
+
+    @Column(name = "class_name", length = 150)
+    private String className;
+
     @Column(name = "niveau_confiance")
     private Double niveauConfiance;
 

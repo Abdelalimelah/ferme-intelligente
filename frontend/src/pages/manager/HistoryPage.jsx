@@ -28,7 +28,7 @@ export default function HistoryPage() {
     try {
       const res = await getDonneesByRange(selectedCapteur, start + 'T00:00:00', end + 'T23:59:59');
       setData(res.data);
-    } catch {}
+    } catch { /* best-effort */ }
     setLoading(false);
   };
 
