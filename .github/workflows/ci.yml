@@ -208,10 +208,18 @@ jobs:
           docker compose logs --tail 100
           exit 1
 
+      - name: Install k6
+        run: |
+          curl -sSL https://github.com/grafana/k6/releases/download/v0.54.0/k6-v0.54.0-linux-amd64.tar.gz \
+            | tar -xz --strip-components 1 -C /usr/local/bin k6-v0.54.0-linux-amd64/k6
+
+      # grafana/k6-action runs k6 inside its own isolated container, where
+      # "localhost" doesn't reach the docker-compose stack's published ports
+      # on the runner host - that's why this was failing with "connection
+      # refused" even after the stack passed its health check. Run the k6
+      # binary directly on the runner instead, so it shares its network.
       - name: Run k6 smoke test
-        uses: grafana/k6-action@v0.3.1
-        with:
-          filename: performance/smoke-test.js
+        run: k6 run performance/smoke-test.js
         env:
           BASE_URL: http://localhost
 
