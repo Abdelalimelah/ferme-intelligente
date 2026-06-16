@@ -144,6 +144,66 @@ services:
       timeout: 10s
       retries: 5
 
+  # ── 6. Postgres Exporter (metrics for Prometheus) ────────────
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: ferme-postgres-exporter
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATA_SOURCE_NAME: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/ferme_intelligente?sslmode=disable
+    expose:
+      - "9187"
+
+  # ── 7. Redis Exporter (metrics for Prometheus) ───────────────
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.62.0
+    container_name: ferme-redis-exporter
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_ADDR: redis://redis:6379
+    expose:
+      - "9121"
+
+  # ── 8. Prometheus (metrics collection) ───────────────────────
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: ferme-prometheus
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - ai-service
+      - postgres-exporter
+      - redis-exporter
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"        # close in production if not needed externally
+
+  # ── 9. Grafana (dashboards) ───────────────────────────────────
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: ferme-grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3001:3000"
+
   # ── 5. IoT Simulator (optional — start with --profile simulator) ─
   arduino-simulator:
     build:
@@ -165,3 +225,5 @@ volumes:
   ai_uploads:
   ai_models:
   redis_data:
+  prometheus_data:
+  grafana_data:

@@ -37,8 +37,8 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/v3/api-docs.yaml").permitAll()
-                // Spring Actuator health check
-                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                // Spring Actuator health check + Prometheus scraping
+                .requestMatchers("/actuator/health", "/actuator/info", "/actuator/prometheus").permitAll()
                 // WebSocket handshake (SockJS uses HTTP)
                 .requestMatchers("/ws/**").permitAll()
                 // Everything else requires authentication
