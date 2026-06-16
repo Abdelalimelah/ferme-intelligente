@@ -179,6 +179,13 @@
                     <includes>
                         <include>**/*IT.java</include>
                     </includes>
+                    <!-- IT classes run in one JVM/IP; without this the production
+                         login rate limit (5/min) trips after the first couple
+                         of test classes log in. -->
+                    <systemPropertyVariables>
+                        <app.ratelimit.login-per-minute>1000</app.ratelimit.login-per-minute>
+                        <app.ratelimit.refresh-per-minute>1000</app.ratelimit.refresh-per-minute>
+                    </systemPropertyVariables>
                 </configuration>
                 <executions>
                     <execution>
