@@ -29,6 +29,12 @@ arduino-simulator/__pycache__/
 ai-service/model/weights/*.h5
 ai-service/model/weights/*.pb
 ai-service/model/weights/*.tflite
+ai-service/model/*.pth
+
+# ── E2E (Playwright) ─────────────────────────
+e2e/node_modules/
+e2e/test-results/
+e2e/playwright-report/
 
 # ── Uploads ──────────────────────────────────
 uploads/
