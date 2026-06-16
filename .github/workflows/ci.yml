@@ -117,13 +117,24 @@ jobs:
 
       - name: Wait for the app to be healthy
         run: |
-          # Poll the backend's actuator health directly (port 8080 is published
-          # for IoT devices) rather than /api/auth/login through nginx - that
-          # endpoint is rate-limited to 5/min and polling it here would burn
-          # the budget before the actual test even runs.
+          # Check the backend directly first (port 8080, published for IoT
+          # devices) - cheap and tells us if the JVM itself is even up.
           for i in $(seq 1 60); do
             if curl -fs http://localhost:8080/actuator/health >/dev/null 2>&1; then
-              echo "App is up after $((i * 3))s"
+              echo "Backend is up after $((i * 3))s"
+              break
+            fi
+            sleep 3
+          done
+
+          # Then confirm the *actual path the tests use* - through nginx on
+          # port 80 - is also up. Backend-healthy doesn't imply nginx is
+          # ready yet, and that's what caused the k6/Playwright runs to hit
+          # "connection refused" on port 80 right after this step passed.
+          # /actuator/health isn't rate-limited (unlike /api/auth/login).
+          for i in $(seq 1 60); do
+            if curl -fs http://localhost/actuator/health >/dev/null 2>&1; then
+              echo "App is reachable through nginx after $((i * 3))s"
               exit 0
             fi
             sleep 3
@@ -170,13 +181,24 @@ jobs:
 
       - name: Wait for the app to be healthy
         run: |
-          # Poll the backend's actuator health directly (port 8080 is published
-          # for IoT devices) rather than /api/auth/login through nginx - that
-          # endpoint is rate-limited to 5/min and polling it here would burn
-          # the budget before the actual test even runs.
+          # Check the backend directly first (port 8080, published for IoT
+          # devices) - cheap and tells us if the JVM itself is even up.
           for i in $(seq 1 60); do
             if curl -fs http://localhost:8080/actuator/health >/dev/null 2>&1; then
-              echo "App is up after $((i * 3))s"
+              echo "Backend is up after $((i * 3))s"
+              break
+            fi
+            sleep 3
+          done
+
+          # Then confirm the *actual path the tests use* - through nginx on
+          # port 80 - is also up. Backend-healthy doesn't imply nginx is
+          # ready yet, and that's what caused the k6/Playwright runs to hit
+          # "connection refused" on port 80 right after this step passed.
+          # /actuator/health isn't rate-limited (unlike /api/auth/login).
+          for i in $(seq 1 60); do
+            if curl -fs http://localhost/actuator/health >/dev/null 2>&1; then
+              echo "App is reachable through nginx after $((i * 3))s"
               exit 0
             fi
             sleep 3
