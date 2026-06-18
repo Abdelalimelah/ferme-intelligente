@@ -15,7 +15,6 @@ public class DashboardController {
     private final FermeService fermeService;
     private final UtilisateurService utilisateurService;
     private final ParcelleService parcelleService;
-    private final CapteurService capteurService;
     private final AlerteService alerteService;
     private final TacheService tacheService;
     private final RapportService rapportService;
@@ -48,16 +47,9 @@ public class DashboardController {
         long alertesActives = alerteService.countUnread();
         long tachesEnCours = tacheRepository.countByStatut(StatutTache.EN_COURS);
 
-        var allCapteurs = capteurService.findAll();
-        Double avgTemp = allCapteurs.stream()
-                .filter(c -> "Température".equalsIgnoreCase(c.getType()) && c.getDerniereValeur() != null)
-                .mapToDouble(c -> c.getDerniereValeur()).average().orElse(0);
-        Double avgHum = allCapteurs.stream()
-                .filter(c -> "Humidité".equalsIgnoreCase(c.getType()) && c.getDerniereValeur() != null)
-                .mapToDouble(c -> c.getDerniereValeur()).average().orElse(0);
-        Double avgPH = allCapteurs.stream()
-                .filter(c -> "pH".equalsIgnoreCase(c.getType()) && c.getDerniereValeur() != null)
-                .mapToDouble(c -> c.getDerniereValeur()).average().orElse(0);
+        Double avgTemp = orZero(capteurRepository.avgDerniereValeurByTypePattern("temp%"));
+        Double avgHum  = orZero(capteurRepository.avgDerniereValeurByTypePattern("humid%"));
+        Double avgPH   = orZero(capteurRepository.avgDerniereValeurByTypePattern("ph%"));
 
         var recentAlertes = alerteService.findAll().stream().limit(5).toList();
 
@@ -72,6 +64,8 @@ public class DashboardController {
                 .recentAlertes(recentAlertes)
                 .build());
     }
+
+    private double orZero(Double v) { return v != null ? v : 0.0; }
 
     @GetMapping("/worker/{userId}")
     public ResponseEntity<DashboardStats.WorkerStats> getWorkerStats(@PathVariable Long userId) {
